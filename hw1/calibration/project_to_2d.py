@@ -18,16 +18,17 @@ def project_to_2d(coordinates_3d):
 
     coordinates_3d = np.array(coordinates_3d)
     coordinates_3d.shape = (3,1)
-    # coordinates_3d.transpose()
-    # np.swapaxes(coordinates_3d,0,1)
+
+    #multiply calibration matrix by 3d coordinate vector
     p_2d = calibration_matrix * coordinates_3d
+    #divide resulting vector by z
     p_2d = p_2d / coordinates_3d[2]
 
     return p_2d
 
 if __name__ == '__main__':
     coord_1 = (1,1,1)
-    coord_2 = (1,1,10)
+    coord_2 = (10,1,1)
 
     print('2d projection of coordinate 1 %:\n',coord_1)
     coord_2d = project_to_2d(coord_1)
