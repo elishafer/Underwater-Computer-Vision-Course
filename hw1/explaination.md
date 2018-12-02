@@ -44,3 +44,20 @@ will be in the frame.
 
 The distortion coefficients are probably incorrect. This may be because the
 checkerboard pattern wasn't straight but wavy.
+
+## Part II - SfM
+###a. Taking the photos
+20 photos were taken using a cellphone camera (Samsung Galaxy A7 2017) from different angles.
+
+###b. SfM
+For this part I used [OpenSfm](https://github.com/mapillary/OpenSfM). Open SfM takes in
+images from the and processes them for SfM. 
+
+![Mesh](sfm.gif)
+
+###c and d - generate distance map
+OpenSfM generates depthmaps and stores them as .npz files. The files were opened in python
+and the depthmap found and plotted. Values for the colorbar are in meters.
+![depthmap1](sfm/105635.png)
+![depthmap2](sfm/105648.png)
+
