@@ -77,4 +77,15 @@ Now we have the points on the camera plane and their distances.
 ## Part III - Radiometry
 Here the photo was taken of the xrite colour chart and each grey square was sampled:
 ![xrite](calibration/colour/20181115_143955.jpg)
+The following is a table with the reflectance of the chart and underneath the html
+colour values: 
+
+|Irrandiance|0.031	|0.090	|0.198	|0.362	|0.591	|0.900  |
+|-----------|-------|-------|-------|-------|-------|-------|
+|html value|0e202c	|4a5164	|82899c	|b6bdcd	|dae0ee	|f4f7fe |
+
+Individual colour values are extracted from the html values.
+
+The radiometric chart is plotted thus:
+![radiochart](radiometry.png)
 
