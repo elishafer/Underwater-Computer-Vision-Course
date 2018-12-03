@@ -35,11 +35,15 @@ for fname in images:
 
         # Draw and display the corners
         img = cv2.drawChessboardCorners(img, checkerboard_size, corners2,ret)
-        cv2.imshow('img',img)
-        cv2.waitKey(500)
+        small_img = cv2.resize(img,(0,0),fx=0.5,fy=0.5)
+        cv2.imshow(fname,small_img)
+        cv2.waitKey(0)
         
 cv2.destroyAllWindows()
 
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
 
+np.set_printoptions(suppress=True)
+print mtx
+print dist
 
