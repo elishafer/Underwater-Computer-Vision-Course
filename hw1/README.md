@@ -69,8 +69,8 @@ the camera.
 Distances from points to camera are also calculated.
 Now we have the points on the camera plane and their distances.
 * Lastly, we plot the image.
-![custom_depthmap1](sfm/105635_custom.png)
-![picture1](sfm/images/20181125_105635.jpg)
+![custom_depthmap1](sfm/105631_custom.png)
+![picture1](sfm/images/20181125_105631.jpg)
 ![custom_depthmap2](sfm/105648_custom.png)
 ![picture2](sfm/images/20181125_105648.jpg)
 
