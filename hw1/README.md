@@ -1,6 +1,6 @@
 # Principles in UW Imaging - HW 1
 ## Part 1 - Intrinsic calibration:
-###a. Calibrate camera intrinsic params:
+### a. Calibrate camera intrinsic params:
 The code for this is located in `camera_calibration.py`
 
 Checkerboard photos are located in folder `checkerboard`.
@@ -19,7 +19,7 @@ Distortion Coefficients are `(k1,k2,p1,p2,k3)` :
 ```
 [[  3.19950693e-01,  -1.55843810e+00,   6.83257624e-04,  5.97069049e-04,   2.33263373e+00]]
 ```
-###b. Object coordinates
+### b. Object coordinates
 Code was written calculate the projection of object at point `(1,1,1)` and then
 at point `(1,1,10)`.
 
@@ -43,10 +43,10 @@ The first and second calculations will be out of the frame of the camera. The th
 will be in the frame.
 
 ## Part II - SfM
-###a. Taking the photos
+### a. Taking the photos
 20 photos were taken using a cellphone camera (Samsung Galaxy A7 2017) from different angles.
 
-###b. SfM
+### b. SfM
 For this part I used [OpenSfm](https://github.com/mapillary/OpenSfM). Open SfM takes in
 images from the and processes them for SfM. 
 
