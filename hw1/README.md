@@ -52,7 +52,7 @@ images from the and processes them for SfM.
 
 ![Mesh](sfm.gif)
 
-###c and d - generate distance map
+### c and d - generate distance map
 OpenSfM generates depthmaps and stores them as .npz files. The files were opened in python
 and the depthmap found and plotted. Values for the colorbar are in meters.
 ![depthmap1](sfm/105635.png)
