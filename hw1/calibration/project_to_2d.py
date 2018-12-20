@@ -1,3 +1,5 @@
+__author__      = "Elisei Shafer"
+
 import numpy as np
 import cv2
 import math
