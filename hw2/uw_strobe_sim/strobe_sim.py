@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import interpolate
 import cv2
+from PIL import Image
 
 def depthmap_loader(path_to_depthmap):
     """
@@ -14,12 +15,17 @@ def depthmap_loader(path_to_depthmap):
     :param path_to_depthmap:
     :return:
     """
+    image_original_size = (3264,2248)
+
     depthmap = np.load(path_to_depthmap)
     plt.imshow(depthmap['depth'])
     plt.show()
     result, odm = depthmap_preprocessor(depthmap)
 
+    im = Image.fromarray(result)
+    im = im.resize(image_original_size)
 
+    result = np.array(im)
 
     return odm, result
 
