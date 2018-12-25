@@ -45,7 +45,7 @@ def project_to_2d(coordinates_3d, distortion=True):
     projected_coordinates = np.matrix([x_distorted,y_distorted,1])
     projected_coordinates.shape = (3,1)
 
-    #multiply calibration matrix by 3d coordinate vector
+    # multiply calibration matrix by 3d coordinate vector
     p_2d = calibration_matrix * projected_coordinates
 
     return (p_2d[:2])

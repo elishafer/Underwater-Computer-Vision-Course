@@ -8,6 +8,10 @@ from matplotlib import pyplot as plt
 from scipy import interpolate
 import cv2
 from PIL import Image
+from mpl_toolkits import mplot3d
+import sys
+sys.path.append('../../hw1/calibration')
+from project_to_2d import project_to_2d
 
 def depthmap_loader(path_to_depthmap):
     """
@@ -51,11 +55,55 @@ def depthmap_preprocessor(depthmap, dfilter='interpolation'):
 
     return result0, dm
 
-if __name__ == '__main__':
-    path_to_depthmap = '../../hw1/sfm/depthmaps/20181125_105644.jpg.clean.npz'
-    (fdm, rdm)  = depthmap_loader(path_to_depthmap)
+def build_3d_map(depthmap):
 
-    plt.imshow(fdm)
-    plt.show()
-    plt.imshow(rdm)
-    plt.show()
+    calibration_matrix = [[2614.6799607, 0, 1632.33532693],
+                          [0, 2626.31303303, 1228.99718842],
+                          [0, 0, 1]]
+    image_size = (3264, 2248)
+    world_coordinates = np.zeros([image_size[1], image_size[0], 3])
+    c_x = 1632.33532693
+    c_y = 1228.99718842
+    f_x = 2614.6799607
+    f_y = 2626.31303303
+
+    it = np.nditer(depthmap, flags=['multi_index'])
+    while not it.finished:
+        u = it.multi_index[0]
+        v = it.multi_index[1]
+        z = depthmap[u][v]
+        world_coordinates[u][v] = np.transpose(np.linalg.inv(calibration_matrix) * np.transpose(np.matrix([u,v,1]))* z)
+        it.iternext()
+
+    return world_coordinates
+
+def get_scene_center_coordinates(map_3d):
+
+    return map_3d[map_3d.shape[0]/2][map_3d.shape[1]/2]
+
+# def get_strobe_rotation(scene_center_coordinates):
+#
+#     strobe_rotation =
+
+
+
+if __name__ == '__main__':
+    # path_to_depthmap = '../../hw1/sfm/depthmaps/20181125_105644.jpg.clean.npz'
+    # (fdm, rdm)  = depthmap_loader(path_to_depthmap)
+    image_size = (3264, 2248)
+    #
+    #
+    # plt.imshow(fdm)
+    # plt.show()
+    # plt.imshow(rdm)
+    # plt.show()
+
+    # map_3d = build_3d_map(rdm)
+    map_3d = np.load('map_3d_7mp.npy')
+    dm2 = np.zeros(image_size)
+
+
+    # for e, row in enumerate(map_3d):
+    #     for f, i in enumerate(row):
+    #         x,y = np.array(project_to_2d(i, distortion=False))
+    #         dm2[f-1][e-1] = [x,y,map_3d[f-1][e-1][2]]

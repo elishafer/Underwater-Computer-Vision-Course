@@ -10,13 +10,16 @@ to use a scene and depthmap from hw1.
 ### 1.a. Prepare the depthmap
 I'll be using the following scene:
 ![heker_scene](../hw1/sfm/images/20181125_105644.jpg)
+
 The depthmap was obtained using openSfM in hw1:
 ![raw_depthmap](output_images/depthmap_raw.png)
+
 It can be seen that the depthmap is noisy with speckled nois and also
 that there are a lot of blank spaces with no info (the deep blue).
 To remove the speckled noise I used a mean filter of kernel size 7.
 the depthmap size is 604x480px.
 ![depthmap_filtered](output_images/depthmap_mean_lpf_k7.png)
+
 The depthmap was interpolated:
 ![depthmap_interpolated](output_images/depthmap_interpolated.png)
 Then finally the depthmap is upscaled to the original image size of
@@ -30,11 +33,17 @@ hw to preform the calculation. We'll take the pinhole camera model
 
 ![pinhole_model](eqns/opencv_pinhole_model.png)
 
-and solve for x and y and we get the following equations:
+and solve for x and y and we get the following equations: *FIX THIS*
 
 ![x](eqns/CodeCogsEqn_x.gif)
 
 ![y](eqns/CodeCogsEqn_y.gif)
 
 We assume that the camera is in (0,0,0) in world coordinates with rotation
-of 0.
+of 0. From hw1 the callibration matrix:
+```
+[[  2.61467996e+03,   0.00000000e+00,   1.63233533e+03],
+ [  0.00000000e+00,   2.62631303e+03,   1.22899719e+03],
+ [  0.00000000e+00,   0.00000000e+00,   1.00000000e+00]]
+```
+
