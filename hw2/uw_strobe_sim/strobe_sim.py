@@ -19,7 +19,7 @@ def depthmap_loader(path_to_depthmap):
     :param path_to_depthmap:
     :return:
     """
-    image_original_size = (3264,2248)
+    image_original_size = (3264,2448)
 
     depthmap = np.load(path_to_depthmap)
     plt.imshow(depthmap['depth'])
@@ -60,7 +60,7 @@ def build_3d_map(depthmap):
     calibration_matrix = [[2614.6799607, 0, 1632.33532693],
                           [0, 2626.31303303, 1228.99718842],
                           [0, 0, 1]]
-    image_size = (3264, 2248)
+    image_size = (3264, 2448)
     world_coordinates = np.zeros([image_size[1], image_size[0], 3])
     c_x = 1632.33532693
     c_y = 1228.99718842
@@ -85,25 +85,90 @@ def get_scene_center_coordinates(map_3d):
 #
 #     strobe_rotation =
 
+def load_image(path_to_img):
+
+    img = Image.open(path_to_img)
+
+    return img
+
+def normalize_image_values(img, global_max=0.2):
+
+    img = np.array(img,dtype='float64')
+    img = img*0.2/255
+
+    return img
+
+
+def compute_I_d(map_3d, strobe_t, L_0, c, I_s=1 ):
+    scene_center = get_scene_center_coordinates(map_3d)
+
+    vector_strobe_center = scene_center - strobe_t
+    vector_strobe_point = map_3d[:,:] - strobe_t
+    norm_strobe_center = np.linalg.norm(vector_strobe_center)
+    norm_strobe_point = np.linalg.norm(vector_strobe_point, axis=2)
+    norm_camera_point = np.linalg.norm(map_3d,axis=2)
+
+    theta = np.arccos(
+                        (np.dot(vector_strobe_point, vector_strobe_center))/
+                        (norm_strobe_point * norm_strobe_center)
+    )
+    Q = np.cos(0.8*theta)
+    vector_normal = np.array([0,0,1])
+    cos_phi = np.dot(vector_strobe_point, vector_normal)/ \
+              (norm_strobe_point)
+
+    I_d = (I_s * Q[:, :, None] * cos_phi[:, :, None] * L_0 * np.exp(
+        -1 * c * (norm_strobe_point[:, :, None] + norm_camera_point[:, :, None]))) / \
+          (norm_strobe_point[:, :, None] ** 2)
+
+    return I_d
+
+
 
 
 if __name__ == '__main__':
-    # path_to_depthmap = '../../hw1/sfm/depthmaps/20181125_105644.jpg.clean.npz'
-    # (fdm, rdm)  = depthmap_loader(path_to_depthmap)
-    image_size = (3264, 2248)
+    path_to_depthmap = '../../hw1/sfm/depthmaps/20181125_105644.jpg.clean.npz'
+    (fdm, rdm)  = depthmap_loader(path_to_depthmap)
+    image_size = (3264, 2448)
+       #
     #
-    #
-    # plt.imshow(fdm)
-    # plt.show()
-    # plt.imshow(rdm)
-    # plt.show()
+    plt.imshow(fdm)
+    plt.show()
+    plt.imshow(rdm)
+    plt.show()
 
     # map_3d = build_3d_map(rdm)
+    # np.save('map_3d_7mp', map_3d)
     map_3d = np.load('map_3d_7mp.npy')
     dm2 = np.zeros(image_size)
 
+    # strobe_t = np.array([0.5, 0.5, 0])
+    # map_3d = map_3d/10
+    # scene_center = get_scene_center_coordinates(map_3d)
+    # vector_strobe_center = scene_center - strobe_t
+    # vector_strobe_point = map_3d[:, :] - strobe_t
+    # theta = np.arccos((np.dot(vector_strobe_point, vector_strobe_center)) /
+    #                   (np.linalg.norm(vector_strobe_point, axis=2)* np.linalg.norm(vector_strobe_center)))
 
-    # for e, row in enumerate(map_3d):
-    #     for f, i in enumerate(row):
-    #         x,y = np.array(project_to_2d(i, distortion=False))
-    #         dm2[f-1][e-1] = [x,y,map_3d[f-1][e-1][2]]
+    map_3d = map_3d/10
+    L_0 = normalize_image_values(Image.open('../../hw1/sfm/images/20181125_105644.jpg'))
+    # Strobe without backscatter
+    c = np.array([0.228, 0.046, 0.019])
+    strobe_t = 1 * np.array([-0.1, 0.1, 0])
+    I_d = compute_I_d(map_3d,strobe_t,L_0,c, I_s=3)
+    plt.imshow(I_d)
+    plt.show()
+    strobe_t = 5 * np.array([-0.1, 0.1, 0])
+    I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=4)
+    plt.imshow(I_d)
+    plt.show()
+
+    c = np.array([0.236, 0.068, 0.077])
+    strobe_t = 1 * np.array([-0.1, 0.1, 0])
+    I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=3)
+    plt.imshow(I_d)
+    plt.show()
+    strobe_t = 5 * np.array([-0.1, 0.1, 0])
+    I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=5)
+    plt.imshow(I_d)
+    plt.show()
