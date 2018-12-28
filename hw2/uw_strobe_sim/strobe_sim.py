@@ -9,6 +9,7 @@ from scipy import interpolate
 import cv2
 from PIL import Image
 from mpl_toolkits import mplot3d
+from scipy import integrate
 import sys
 sys.path.append('../../hw1/calibration')
 from project_to_2d import project_to_2d
@@ -122,6 +123,36 @@ def compute_I_d(map_3d, strobe_t, L_0, c, I_s=1 ):
           (norm_strobe_point[:, :, None] ** 2)
 
     return I_d
+
+def compute_backscatter(map_3d, i_s, c, beta_hg, g=0.85):
+    scene_center = get_scene_center_coordinates(map_3d)
+
+    vector_strobe_center = scene_center - strobe_t
+    vector_strobe_point = map_3d[:, :] - strobe_t
+    norm_strobe_center = np.linalg.norm(vector_strobe_center)
+    norm_strobe_point = np.linalg.norm(vector_strobe_point, axis=2)
+    norm_camera_point = np.linalg.norm(map_3d, axis=2)
+    x_opn = map_3d / map_3d[:, :, 2]
+    B = integrate.quad(B_point, 0, map_3d[:,:,2], args=(x_opn,vector_strobe_center,norm_strobe_center,
+                                                        i_s, c, beta_hg, g ))
+    return B
+
+def B_point(z, x_opn, vector_strobe_center, norm_strobe_center, i_s, c, beta_hg, g):
+    vector_camera_point = x_opn*z
+    vector_strobe_point = vector_camera_point - strobe_t
+    norm_strobe_point = np.linalg.norm(vector_strobe_point)
+    norm_camera_point = np.linalg.norm(vector_camera_point)
+
+    theta = np.arccos(
+        (np.dot(vector_strobe_point, vector_strobe_center)) /
+        (norm_strobe_point * norm_strobe_center)
+    )
+    Q = np.cos(0.8 * theta)
+    cos_psi = -1 * np.dot(vector_strobe_point, vector_camera_point)/(norm_strobe_point* norm_camera_point)
+    beta = beta_hg * ((1 - g) ** 2) / (1 + g ** 2 - 2 * g * cos_psi)
+    B_point = i_s * Q * np.exp(-1 * c * (norm_strobe_point + norm_camera_point))/(norm_strobe_point ** 2) * beta
+
+    return B_point
 
 
 
