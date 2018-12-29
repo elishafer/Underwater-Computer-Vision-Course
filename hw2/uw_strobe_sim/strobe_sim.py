@@ -14,23 +14,22 @@ import sys
 sys.path.append('../../hw1/calibration')
 from project_to_2d import project_to_2d
 
-def depthmap_loader(path_to_depthmap):
+def depthmap_loader(path_to_depthmap, image_resize=True, resize_size=(3264,2448)):
     """
     Load depthmap that's made in OpenSfm, clean it up and interpolate
     :param path_to_depthmap:
     :return:
     """
-    image_original_size = (3264,2448)
 
     depthmap = np.load(path_to_depthmap)
     plt.imshow(depthmap['depth'])
     plt.show()
     result, odm = depthmap_preprocessor(depthmap)
 
-    im = Image.fromarray(result)
-    im = im.resize(image_original_size)
-
-    result = np.array(im)
+    if image_resize == True:
+        im = Image.fromarray(result)
+        im = im.resize(resize_size)
+        result = np.array(im)
 
     return odm, result
 
@@ -56,17 +55,9 @@ def depthmap_preprocessor(depthmap, dfilter='interpolation'):
 
     return result0, dm
 
-def build_3d_map(depthmap):
+def build_3d_map(depthmap, image_size, calibration_matrix):
 
-    calibration_matrix = [[2614.6799607, 0, 1632.33532693],
-                          [0, 2626.31303303, 1228.99718842],
-                          [0, 0, 1]]
-    image_size = (3264, 2448)
     world_coordinates = np.zeros([image_size[1], image_size[0], 3])
-    c_x = 1632.33532693
-    c_y = 1228.99718842
-    f_x = 2614.6799607
-    f_y = 2626.31303303
 
     it = np.nditer(depthmap, flags=['multi_index'])
     while not it.finished:
@@ -124,7 +115,7 @@ def compute_I_d(map_3d, strobe_t, L_0, c, I_s=1 ):
 
     return I_d
 
-def compute_backscatter(map_3d, i_s, c, beta_hg, g=0.85):
+def compute_backscatter(map_3d, strobe_t, i_s, c, beta_hg, g=0.85):
     scene_center = get_scene_center_coordinates(map_3d)
 
     vector_strobe_center = scene_center - strobe_t
@@ -132,9 +123,15 @@ def compute_backscatter(map_3d, i_s, c, beta_hg, g=0.85):
     norm_strobe_center = np.linalg.norm(vector_strobe_center)
     norm_strobe_point = np.linalg.norm(vector_strobe_point, axis=2)
     norm_camera_point = np.linalg.norm(map_3d, axis=2)
-    x_opn = map_3d / map_3d[:, :, 2]
-    B = integrate.quad(B_point, 0, map_3d[:,:,2], args=(x_opn,vector_strobe_center,norm_strobe_center,
+    x_opn = map_3d / map_3d[:, :, 2,None]
+    B = np.zeros(map_3d[:,:,0].shape)
+    for i in xrange(map_3d.shape[0]):
+        print("integrating on row %d", i)
+        for j in xrange(map_3d.shape[1]):
+
+            B[i][j], err = integrate.quad(B_point, 0.001, map_3d[i,j,2], args=(x_opn[i,j],vector_strobe_center,norm_strobe_center,
                                                         i_s, c, beta_hg, g ))
+
     return B
 
 def B_point(z, x_opn, vector_strobe_center, norm_strobe_center, i_s, c, beta_hg, g):
@@ -159,19 +156,24 @@ def B_point(z, x_opn, vector_strobe_center, norm_strobe_center, i_s, c, beta_hg,
 
 if __name__ == '__main__':
     path_to_depthmap = '../../hw1/sfm/depthmaps/20181125_105644.jpg.clean.npz'
-    (fdm, rdm)  = depthmap_loader(path_to_depthmap)
-    image_size = (3264, 2448)
-       #
-    #
-    plt.imshow(fdm)
-    plt.show()
-    plt.imshow(rdm)
-    plt.show()
+    (fdm, rdm)  = depthmap_loader(path_to_depthmap, image_resize=False)
+    image_size = (640, 480)
+    # image_size = (3264, 2448)
 
-    # map_3d = build_3d_map(rdm)
-    # np.save('map_3d_7mp', map_3d)
-    map_3d = np.load('map_3d_7mp.npy')
-    dm2 = np.zeros(image_size)
+    # plt.imshow(fdm)
+    # plt.show()
+    # plt.imshow(rdm)
+    # plt.show()
+
+    # calibration_matrix = [[2614.6799607/5.1, 0, 1632.33532693/5.1],
+    #                       [0, 2626.31303303/5.1, 1228.99718842/5.1],
+    #                       [0, 0, 1]]
+    #
+    # map_3d = build_3d_map(rdm, image_size, calibration_matrix)
+    # map_3d.astype('half')
+    # np.savez_compressed('map_3d_1mp', map_3d=map_3d)
+    map_3d = np.load('map_3d_1mp.npz')
+    map_3d = map_3d['map_3d']
 
     # strobe_t = np.array([0.5, 0.5, 0])
     # map_3d = map_3d/10
@@ -181,25 +183,36 @@ if __name__ == '__main__':
     # theta = np.arccos((np.dot(vector_strobe_point, vector_strobe_center)) /
     #                   (np.linalg.norm(vector_strobe_point, axis=2)* np.linalg.norm(vector_strobe_center)))
 
-    map_3d = map_3d/10
-    L_0 = normalize_image_values(Image.open('../../hw1/sfm/images/20181125_105644.jpg'))
+    map_3d = map_3d/5
+    # L_0 = normalize_image_values(Image.open('../../hw1/sfm/images/20181125_105644.jpg'))
+    L_0 = normalize_image_values(Image.open('../20181125_105644_scaled.png'))
     # Strobe without backscatter
     c = np.array([0.228, 0.046, 0.019])
-    strobe_t = 1 * np.array([-0.1, 0.1, 0])
-    I_d = compute_I_d(map_3d,strobe_t,L_0,c, I_s=3)
-    plt.imshow(I_d)
-    plt.show()
+    beta_hg = np.array([1.22, 2.05, 3.06]) * 10 ** (-3)
+
+    # strobe_t = 1 * np.array([-0.1, 0.1, 0])
+    # I_d = compute_I_d(map_3d,strobe_t,L_0,c, I_s=12)
+    # plt.imshow(I_d)
+    # plt.show()
+
+    # strobe_t = 5 * np.array([-0.1, 0.1, 0])
+    # I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=16)
+    # plt.imshow(I_d)
+    # plt.show()
+    # #
+    c = np.array([0.236, 0.068, 0.077])
+    beta_hg = np.array([0.314, 0.395, 0.469])
+
+    # strobe_t = 1 * np.array([-0.1, 0.1, 0])
+    # I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=12)
+    # plt.imshow(I_d)
+    # plt.show()
+
     strobe_t = 5 * np.array([-0.1, 0.1, 0])
-    I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=4)
+    I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=20)
     plt.imshow(I_d)
     plt.show()
 
-    c = np.array([0.236, 0.068, 0.077])
-    strobe_t = 1 * np.array([-0.1, 0.1, 0])
-    I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=3)
-    plt.imshow(I_d)
-    plt.show()
-    strobe_t = 5 * np.array([-0.1, 0.1, 0])
-    I_d = compute_I_d(map_3d, strobe_t, L_0, c, I_s=5)
-    plt.imshow(I_d)
-    plt.show()
+    # bs = np.zeros(map_3d.shape)
+    # for i in xrange(3):
+    #     bs[:,:,i] = compute_backscatter(map_3d, strobe_t, 1, c[i],beta_hg[i])

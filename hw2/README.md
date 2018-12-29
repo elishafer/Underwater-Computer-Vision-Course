@@ -47,3 +47,7 @@ of 0. From hw1 the callibration matrix:
  [  0.00000000e+00,   0.00000000e+00,   1.00000000e+00]]
 ```
 
+## Exercise 2 - Building and Simulating the underwater model
+
+
+
