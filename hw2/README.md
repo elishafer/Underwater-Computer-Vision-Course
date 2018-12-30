@@ -70,6 +70,14 @@ It's implemented in `compute_I_d` in [uw_strobe_sim](uw_strobe_sim/strobe_sim.py
 The implementation is using vector implementation and all colour channels are computed
 using the same vector.
 
+###  Computation of Backscatter
+
+Backscatter for each point on the image was computed by integrating the backscatter of each point
+along the ray from the camera to the point in space. To compute the backscatter of a point on a
+ray the `B_point` function was implemented. This function is in turn integrated inside the
+`compute_backscatter` function. The `compute_backscatter` function computes a single colour channel.
+The channels are then collated.
+
 |water type and strobe distance|  reflected light| backscatter| I_t|
 |----------|----------------|------------|----|
 |J1 10 cm|![ambient](output_images/i_d/jerlov1_10cm.png)|![backscatter](output_images/bs/jerlov1_10cm.png)|![I_t](output_images/I_t/jerlov1_10cm.png)|
