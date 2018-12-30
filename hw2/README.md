@@ -53,7 +53,8 @@ of 0. From hw1 the callibration matrix:
 
 To speed up the image processing we'll use 640x480 images instead of the original 3264x2448.
 Thus, all the callibration matrix coefficients (except z) shall be divided by 5.1. Also, to
-achieve better results the resulting map was scaled down by a factor of 5.
+achieve better results the distances in the resulting map was scaled down by a factor
+of 5, (e.g a distance of 10m is now 2m).
  
 
 ## Exercise 2 - Building and Simulating the underwater model
@@ -62,6 +63,20 @@ We'll start by taking the original image and normalising so that the maximum of 
 shall be 0.2. We do that by dividing each channel by 255 and multiplying by 0.2. We get the following image:
 
 ![dim_image](output_images/L_0.png)
+
+The water types used were J1 and J1c. For J1 the following values were used:
+
+|variable|Red|Green|Blue|
+|--------|---|-----|----|
+|c |0.228|0.046|0.019|
+|beta_hg|1.22e-3| 2.05e-3| 3.06e-3|
+
+For water type J1c:
+
+|variable|Red|Green|Blue|
+|--------|---|-----|----|
+|c |0.236| 0.068| 0.077|
+|beta_hg|0.314| 0.395| 0.469|
 
 ### Computation of I_d
 
@@ -78,6 +93,14 @@ ray the `B_point` function was implemented. This function is in turn integrated 
 `compute_backscatter` function. The `compute_backscatter` function computes a single colour channel.
 The channels are then collated.
 
+Note: To calculate the phi in the model I assumed that the normal of all points point
+ in the -z direction
+
+### Results
+
+Here the computed models are shown. Strobe distance of 10cm and 50cm means that the
+strobe is located at (10,10,0)cm and (50, 50, 0)cm respectively.
+
 |water type and strobe distance|  reflected light| backscatter| I_t|
 |----------|----------------|------------|----|
 |J1 10 cm|![ambient](output_images/i_d/jerlov1_10cm.png)|![backscatter](output_images/bs/jerlov1_10cm.png)|![I_t](output_images/I_t/jerlov1_10cm.png)|
@@ -85,3 +108,16 @@ The channels are then collated.
 |J1c 10 cm|![ambient](output_images/i_d/jerlov1c_10cm.png)|![backscatter](output_images/bs/jerlov1c_10cm.png)|![I_t](output_images/I_t/jerlov1c_10cm.png)|
 |J1c 50cm|![ambient](output_images/i_d/jerlov1c_50cm.png)|![backscatter](output_images/bs/jerlov1c_50cm.png)|![I_t](output_images/I_t/jerlov1c_50cm.png)|
 
+## Conclusion
+
+The model works as expected, producing rather realistic results.  It is rather difficult
+to attain a realistic depthmap from SfM with the need for prefilters.
+
+The different water types affected colour transmission and backscatter, as expected.
+With the J1 water type having almost no backscatter, which is in line with the
+beta_hg numbers given to it. Also we can see colour differences in the different
+water types which is in line with the different transmission loss coefficients.
+
+Regarding the strobe position we can see that when the strobe is placed farther away
+we get much less backscatter. This is due to an decrease in the angle of phi , i.e.
+the angle between the ray from the strobe to object and object to camera.
