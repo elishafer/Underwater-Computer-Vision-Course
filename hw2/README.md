@@ -16,10 +16,11 @@ The depthmap was obtained using openSfM in hw1:
 
 ![raw_depthmap](output_images/depthmap_raw.png)
 
-It can be seen that the depthmap is noisy with speckled nois and also
-that there are a lot of blank spaces with no info (the deep blue).
+It can be seen that the depthmap is noisy with speckled noise and also
+that there are a lot of blank spaces with no info (the deep blue). The
+colorbar on the side is in meters.
 To remove the speckled noise I used a mean filter of kernel size 7.
-the depthmap size is 604x480px.
+the depthmap size is 640x480px.
 
 ![depthmap_filtered](output_images/depthmap_mean_lpf_k7.png)
 
@@ -34,12 +35,25 @@ relying on the depthmap from 1.a and the camera matrix from the previous
 hw to preform the calculation. We'll take the pinhole camera model
 ([equation from opencv webstite](https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html)):
 
+![pinhole_matrix](eqns/opencv_pinhole_matrix.png)
+
 ![pinhole_model](eqns/opencv_pinhole_model.png)
 
-and solve for x, y and z using the following code:
+If I'm to take the last 2 equations and multiply by z I'll get:
+
+![world_coord1](eqns/world_coord1.gif)
+
+and solve for x,y,z:
+
+![world_coord2](eqns/world_coord2.gif)
+
+and in the code:
+
 ```python
 world_coordinates[u][v] = np.transpose(np.linalg.inv(calibration_matrix) * np.transpose(np.matrix([u,v,1]))* z)
 ```
+The result is a 3d matrix where 2 axes are the size of the image and the 3rd axis is the
+coordinate vector of the object in 3d space.
 
 We assume that the camera is in (0,0,0) in world coordinates with rotation
 of 0. From hw1 the callibration matrix:
@@ -108,14 +122,37 @@ strobe is located at (10,10,0)cm and (50, 50, 0)cm respectively.
 
 ## Conclusion
 
-The model works as expected, producing rather realistic results.  It is rather difficult
-to attain a realistic depthmap from SfM with the need for prefilters.
+Four simulations were done in total, the simulations produced using an existing image
+with depth of field information.
+The model works as expected, producing rather realistic results.
 
 The different water types affected colour transmission and backscatter, as expected.
 With the J1 water type having almost no backscatter, which is in line with the
 beta_hg numbers given to it. Also we can see colour differences in the different
 water types which is in line with the different transmission loss coefficients.
 
-Regarding the strobe position we can see that when the strobe is placed farther away
+Regarding the strobe position there are a number of things to take note of.
+First, we can see that when the strobe is placed farther away
 we get much less backscatter. This is due to an decrease in the angle of phi , i.e.
 the angle between the ray from the strobe to object and object to camera.
+Second, a greater strobe intensity could be used for the farther strobe setup,
+around one and a half times greater than the closer setup. This lead to greater
+illumination of the objects farther from the camera.
+Third, it can be seen that the floor in th forground is more lit when the strobe is positioned
+closer to the camera. This may be due to the fact that I assumed that the image plane
+is in the z direction for the whole scene. If a real plane were to be used the phi
+angle would increase and the floor would be dimmer.
+
+There are a number of improvements that can be done to improve the simulation quality,
+most notably, aquiring a better depthmap. The depthmap that I aquired was relatively
+sparse and had no usable information in the forground(where the floor is located).
+Another feature to implement would be to accurately compute the plane surfaces so as
+to get an accurate angle phi.
+
+Regarding code runtime, the computation of backscatter was very slow. This is due to
+the fact that the integration done was very accurate and also a for loop was
+implemented to compute each pixel in the backscatter. It took between minutes to tens
+of minutes to compute each 640x480 image.
+There can be faster ways compute for example:
+* Instead of a for loop implement a vectorised operation.
+* Implement the integration function as a ctype.

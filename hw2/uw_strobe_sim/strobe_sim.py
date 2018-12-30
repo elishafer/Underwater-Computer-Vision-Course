@@ -23,6 +23,7 @@ def depthmap_loader(path_to_depthmap, image_resize=True, resize_size=(3264,2448)
 
     depthmap = np.load(path_to_depthmap)
     plt.imshow(depthmap['depth'])
+    plt.colorbar()
     plt.show()
     result, odm = depthmap_preprocessor(depthmap)
 
@@ -156,10 +157,12 @@ if __name__ == '__main__':
     image_size = (640, 480)
     # image_size = (3264, 2448)
 
-    # plt.imshow(fdm)
-    # plt.show()
-    # plt.imshow(rdm)
-    # plt.show()
+    plt.imshow(fdm)
+    plt.colorbar()
+    plt.show()
+    plt.imshow(rdm)
+    plt.colorbar()
+    plt.show()
 
     # calibration_matrix = [[2614.6799607/5.1, 0, 1632.33532693/5.1],
     #                       [0, 2626.31303303/5.1, 1228.99718842/5.1],
