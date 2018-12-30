@@ -73,10 +73,6 @@ def get_scene_center_coordinates(map_3d):
 
     return map_3d[map_3d.shape[0]/2][map_3d.shape[1]/2]
 
-# def get_strobe_rotation(scene_center_coordinates):
-#
-#     strobe_rotation =
-
 def load_image(path_to_img):
 
     img = Image.open(path_to_img)
@@ -86,7 +82,7 @@ def load_image(path_to_img):
 def normalize_image_values(img, global_max=0.2):
 
     img = np.array(img,dtype='float64')
-    img = img*0.2/255
+    img = img*global_max/255
 
     return img
 
