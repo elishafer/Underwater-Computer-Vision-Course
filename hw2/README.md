@@ -27,8 +27,6 @@ The depthmap was interpolated:
 
 ![depthmap_interpolated](output_images/depthmap_interpolated.png)
 
-Then finally the depthmap is upscaled to the original image size of
-3264x2448px.
 
 ### 1.b. Find the points 3D coordinates
 Now we'll look for the 3D coordinates corresponding to each pixel whilest
@@ -38,7 +36,7 @@ hw to preform the calculation. We'll take the pinhole camera model
 
 ![pinhole_model](eqns/opencv_pinhole_model.png)
 
-and solve for x and y using the following code:
+and solve for x, y and z using the following code:
 ```python
 world_coordinates[u][v] = np.transpose(np.linalg.inv(calibration_matrix) * np.transpose(np.matrix([u,v,1]))* z)
 ```
