@@ -93,7 +93,7 @@ For water type J1c:
 ### Computation of I_d
 
 The I_d was computed using the [referenced paper](http://csms.haifa.ac.il/profiles/tTreibitz/webfiles/Spier_et_al_2017_insitu-targetless.pdf).
-It's implemented in `compute_I_d` in [uw_strobe_sim](uw_strobe_sim/strobe_sim.py).
+It's implemented in `compute_I_d` in [uw_strobe_sim](uw_img_sim/strobe_sim.py).
 The implementation is using vector implementation and all colour channels are computed
 using the same vector.
 
