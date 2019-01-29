@@ -43,7 +43,7 @@ The results are consistant with the water types. JI has almost no backscatter, h
 Reconstruction was done using an adaption of the algorithm in Roser et al. 2014. The paper uses a trust region approach on equations 6 and 7. Since we haven't learnt this optimisation method in class I will try doing a curve fitting approach on equation 6.
 ![rosen_eq6](images/equations/Rosen2014eq6.png)
 
-The results using the 1st percentile were not good so I used a minimum rolling window of size 10k. This results in a good curve for the J1c:
+The results using the 1st percentile were not good so I used a minimum rolling window of size 50k. This results in a good curve for the J1c:
 
 |![J1c_before_percentile](images/reconstruction_results/J1c_red_fit.png)|![J1c_after_percentile](images/reconstruction_results/J1c_red_fit_1st_q.png)|
 |-----------|----------|
@@ -100,7 +100,9 @@ The real world results are not as good as the simulation:
 |4027|![rws_4027](images/Real_world_scenes/LFT_4027_liner_undistort.png)|![JI_reconstruction](images/reconstruction_results/rws_4077_min_windows16b.png)|
 
 There is noticable clipping in both images, with significant clipping  in 4027. An explaination for this would be the curve fit didn't work well in image 4027 as can be seen in the green and blue channels be seen in below in the distance/intensity plot for green channel:
+
 ![4027_green_plot](images/reconstruction_results/rws_4077_green_fit.png)
+
 this causes the blue and especially the blue channels to oversaturate. It can also be seen in the graph that the lowest intensity data points don't exactly conform to a curve and thus it is difficult to fit a curve to the data.
 
 
