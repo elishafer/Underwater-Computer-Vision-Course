@@ -99,10 +99,8 @@ The real world results are not as good as the simulation:
 |3266|![rws_3266](images/Real_world_scenes/LFT_3266_liner_undistort.png)|  ![J1c_reconstruction](images/reconstruction_results/rws_3266_min_window16.png)|
 |4027|![rws_4027](images/Real_world_scenes/LFT_4027_liner_undistort.png)|![JI_reconstruction](images/reconstruction_results/rws_4077_min_windows16b.png)|
 
-There is noticable clipping in both images, with significant clipping  in 4027. An explaination for this would be the curve fit didn't work well in image 4027 as can be seen in the green and blue channels be seen in below in the distance/intensity plot for green channel:
+There is noticable clipping in both images, with significant clipping  in 4027. An explaination for this would be the curve fit didn't work well in image 4027 as can be seen in the green and blue saturation in the image above and also below in the distance/intensity plot for green channel:
 
 ![4027_green_plot](images/reconstruction_results/rws_4077_green_fit.png)
 
-this causes the blue and especially the blue channels to oversaturate. It can also be seen in the graph that the lowest intensity data points don't exactly conform to a curve and thus it is difficult to fit a curve to the data.
-
-
+This causes the blue and especially the green channels to oversaturate. It can also be seen in the graph that the lowest intensity data points don't exactly conform to a curve and thus it is difficult to fit a curve to the data.
