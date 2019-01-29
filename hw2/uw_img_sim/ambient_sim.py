@@ -63,7 +63,7 @@ def find_ambient_beta_all_chan(E_d):
     I = [E_d.R, E_d.G, E_d.B] #[E_d[0][0], E_d[1][0], E_d[2][0]]
 
     for i in xrange(3):
-        [popt, tmp] = curve_fit(ambient_light_irradiance, distance, I[i], bounds=(0., [1, 1]))
+        [popt, tmp] = curve_fit(ambient_light_irradiance, distance, I[i], bounds=(0., [1, 0.6]))
         ambient[i] = popt[0]
         beta[i] = popt[1]
     return [ambient, beta]
@@ -119,10 +119,10 @@ if __name__ == '__main__':
     img = np.array(img, dtype='float64')/255.0
 
 
-    # a = np.array([0.228, 0.046, 0.019])
-    # b = np.array([1.22, 2.05, 3.06]) * 10 ** (-3)
-    # beta = a + b
-    # A = b/beta
+    a = np.array([0.228, 0.046, 0.019])
+    b = np.array([1.22, 2.05, 3.06]) * 10 ** (-3)
+    beta = a + b
+    A = b/beta
 
     a = np.array([0.236, 0.068, 0.077])
     b = np.array([0.314, 0.395, 0.469])
@@ -137,7 +137,8 @@ if __name__ == '__main__':
     # E = get_p_dist_all_channels(depthmap, I, 0, 'gt')
     E = create_rgbd_df(depthmap, I)
     E = E.sort_values(by=['D'])
-    E = E.rolling(1000).quantile(.01)
+    E_o = E
+    E = E.rolling(50000).min()
     E = E.dropna()
 
     [I_inf, beta_c] = find_ambient_beta_all_chan(E)
@@ -151,11 +152,11 @@ if __name__ == '__main__':
     plt.imshow(img_r)
     plt.show()
 
-    depthmap_rws = np.load('map_3d_rwc.npz')
+    depthmap_rws = np.load('map_3d_rwc2.npz')
     depthmap_rws = depthmap_rws['map_3d.npy']
 
-    img_rws = Image.open('../../hw3/images/Real_world_scenes/LFT_3266_liner_undistort.tif')
-    img_rws = np.array(img_rws, dtype='float64')/255.0
+    img_rws = cv2.imread('../../hw3/images/Real_world_scenes/LFT_4027_liner_undistort.tif', -1)
+    img_rws = np.array(img_rws, dtype='float64')/65535.0
     # max = np.array([img_rws[:,:,i].max() for i in range(3)])
     # img_rws = img_rws/max
 
@@ -167,7 +168,7 @@ if __name__ == '__main__':
     E = create_rgbd_df(depthmap_rws, img_rws)
     E = E.sort_values(by=['D'])
     E = E.dropna()
-    E_rws = E.rolling(1000).quantile(.01)
+    E_rws = E.rolling(50000).min()
     E_rws = E_rws.dropna()
 
 
