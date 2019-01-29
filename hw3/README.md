@@ -38,6 +38,10 @@ The actual distances obtained from the depthfile were halved, otherwise the imag
 
 The results are consistant with the water types. JI has almost no backscatter, hence we see a clear image with mostly attenuation. J1c on the other hand has a lot more  backscatter, hence the image degrades more with the distance.
 
+## Exercise 2 - Scene Reconstruction
+
+
+
 
 
 
